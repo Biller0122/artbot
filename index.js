@@ -22,54 +22,57 @@ const userStates = {};
 const adminTakenOver = {};
 const EXCEL_FILE = path.join(__dirname, "zahialga.xlsx");
 
+// Page-ийн өөрийн ID-г хадгалах
+let PAGE_ID = null;
+
 const SYSTEM_PROMPT = `Чи "Boroldoi AI Studio" зургийн захиалгын Facebook page-ийн туслах ажилтан юм.
 ЗААВАЛ Монгол хэлээр хариул. Найрсаг, товч байна.
 Markdown форматлалт огт хэрэглэхгүй — **, *, #, _ зэрэг тэмдэгтүүдийг ХЭЗЭЭ Ч бичихгүй.
 Энгийн текстээр л бич.
 
-ҮНЭ ЖАГСААЛТ:
-1 хүн - 30,000₮
-2 хүн - 50,000₮
-3 хүн - 70,000₮
-4 хүн - 100,000₮
-5 хүн - 130,000₮
-6 хүн - 160,000₮
-7 хүн - 190,000₮
-8 хүн - 220,000₮
-9 хүн - 250,000₮
-10 хүн - 280,000₮
-11 хүн - 310,000₮
-Яаралтай (24-48 цаг): +20%, хүргэлт +1 хоног нэмэгдэнэ
+УНЭ ЖАГСААЛТ:
+1 хун - 30,000₮
+2 хун - 50,000₮
+3 хун - 70,000₮
+4 хун - 100,000₮
+5 хун - 130,000₮
+6 хун - 160,000₮
+7 хун - 190,000₮
+8 хун - 220,000₮
+9 хун - 250,000₮
+10 хун - 280,000₮
+11 хун - 310,000₮
+Яаралтай (24-48 цаг): +20%, хургэлт +1 хоног нэмэгдэнэ
 Энгийн: 5 хоногт гарна
 
-УГААХ + ЖААЗЛАХ (хүргэлт үнэгүй):
-A4 хэмжээ (арьсан бүрэлттэй угаалт, 20x30см жааз) - 50,000₮
-A3 хэмжээ (арьсан бүрэлттэй угаалт, 40x30см жааз) - 80,000₮
-Зурах болон угаах үнэ ТУС ТУСДАА тооцогдоно.
+УГААХ + ЖААЗЛАХ (хургэлт унэгуй):
+A4 хэмжээ (арьсан бурэлттэй угаалт, 20x30см жааз) - 50,000₮
+A3 хэмжээ (арьсан бурэлттэй угаалт, 40x30см жааз) - 80,000₮
+Зурах болон угаах унэ ТУС ТУСДАА тооцогдоно.
 
 Хөдөө орон нутгийн захиалганд унаанд тавьж өгнө.
-Угааж жаазлах үед зурган дээр үг бичүүлэх үнэгүй.
+Угааж жаазлах уед зурган дээр уг бичуулэх унэгуй.
 
 ЗАХИАЛГА АВАХ ДЭС ДАРААЛАЛ:
-1. Хэдэн хүн зурах вэ?
+1. Хэдэн хун зурах вэ?
 2. Яаралтай эсвэл энгийн?
 3. Файлаар авах уу эсвэл угааж жаазлуулах уу?
 4. Угаалга сонговол A4 эсвэл A3?
-5. Нийт үнийг хэлэх
-6. Хүн тус бүрийн царай тод гарсан зургаа явуулаарай гэж НЭГ УДАА л хүс
-7. Зургууд ирсний дараа хүн тус бүрийн хоорондын холбоо хамаарал асуу (жишээ: ах эгч, эцэг хүү гэх мэт)
+5. Нийт унийг хэлэх
+6. Хун тус бурийн царай тод гарсан зургаа явуулаарай гэж НЭГ УДАА л хус
+7. Зургууд ирсний дараа хун тус бурийн хоорондын холбоо хамаарал асуу
 8. Утасны дугаар асуу
 9. Утас ирвэл JSON тавь
 
-ЧУХАЛ ДҮРЭМ:
+ЧУХАЛ ДУРЭМ:
 - Өмнөх яриагаа ЗААВАЛ санаж байх. Хэрэглэгч хэлсэн зүйлийг ДАХИН асуухгүй.
-- Хэрэглэгч зураг явуулсан бол "зургаа явуулаарай" гэж ДАХИН хэлэхгүй.
-- Нэг асуулт НЭГЛ удаа асуу, давтахгүй.
-- Яаралтай үнэ = үндсэн үнэ x 1.2 (бүхэл тоо).
-- Үнэ хэлэхдээ энгийн текстээр бич, markdown хэрэглэхгүй.
-- "Оператор" гэвэл: Оператортой холбогдож байна, хүлээнэ үү
-- Зургийн бизнестэй холбоогүй асуултад: Уучлаарай, би зөвхөн зургийн захиалгын талаар мэдээлэл өгч чадна.
-- Хэрэглэгч шинэ зураг нэмж явуулбал тэрийг харж тайлбарла, дахин "зураг явуулаарай" гэж хэлэхгүй.
+- Хэрэглэгч зураг явуулсан бол зургаа явуулаарай гэж ДАХИН хэлэхгүй.
+- Нэг асуулт НЭГ л удаа асуу, давтахгүй.
+- Яаралтай унэ = ундсэн унэ x 1.2 (бухэл тоо).
+- Унэ хэлэхдээ энгийн текстээр бич, markdown хэрэглэхгүй.
+- Оператор гэвэл: Оператортой холбогдож байна, хулээнэ уу
+- Зургийн бизнестэй холбоогуй асуултад: Уучлаарай, би зөвхөн зургийн захиалгын талаар мэдээлэл өгч чадна.
+- Хэрэглэгч шинэ зураг нэмж явуулбал тэрийг харж тайлбарла, дахин зураг явуулаарай гэж хэлэхгүй.
 
 Утас авмагц хариуны төгсгөлд заавал энэ JSON тавь:
 ###AWAITING_PAYMENT###{"type":"зурах","count":3,"speed":"яаралтай","price":84000,"name":"Болор","phone":"99001122","washSize":"A4","totalPrice":134000}###END###`;
@@ -160,6 +163,17 @@ async function verifyPaymentScreenshot(imageUrl, expectedAmount) {
   }
 }
 
+// Page ID авах
+async function getPageId() {
+  try {
+    const res = await axios.get(`https://graph.facebook.com/v19.0/me?access_token=${PAGE_ACCESS_TOKEN}`);
+    PAGE_ID = res.data.id;
+    console.log(`✅ Page ID: ${PAGE_ID}`);
+  } catch (err) {
+    console.error("Page ID авах алдаа:", err.message);
+  }
+}
+
 app.get("/webhook", (req, res) => {
   if (req.query["hub.mode"] === "subscribe" && req.query["hub.verify_token"] === VERIFY_TOKEN) {
     res.status(200).send(req.query["hub.challenge"]);
@@ -172,16 +186,38 @@ app.post("/webhook", (req, res) => {
     body.entry.forEach(entry => {
       if (entry.messaging) {
         entry.messaging.forEach(event => {
-          // Admin текст бичсэн үед л bot унтарна
+
           if (event.message?.is_echo) {
+            // =============================================
+            // ГОЛ ЗАСВАР:
+            // Echo мессеж = Page өөрөө явуулсан мессеж
+            // Sender ID нь Page-ийн ID байна
+            // Recipient ID нь хэрэглэгчийн ID байна
+            //
+            // Bot-ын хариулт: sender = Page ID
+            // Admin-ы мессеж: sender = Page ID, ГЭХДЭЭ
+            //   app_id байхгүй эсвэл өөр app_id байна
+            //
+            // Шалгах арга: echo мессеж дэх app_id
+            // Bot-ын echo-д app_id = манай app-ийн ID байна
+            // Admin-ы echo-д app_id байхгүй эсвэл өөр байна
+            // =============================================
+
             const recipientId = event.recipient?.id;
             const hasText = event.message?.text && event.message.text.trim().length > 0;
-            if (recipientId && hasText) {
+            const appId = event.message?.app_id;
+
+            console.log(`Echo: recipientId=${recipientId}, appId=${appId}, hasText=${hasText}, text=${event.message?.text?.substring(0,30)}`);
+
+            // app_id байхгүй = хүн (admin) бичсэн
+            // app_id байгаа = bot (автомат) явуулсан
+            if (recipientId && hasText && !appId) {
               adminTakenOver[recipientId] = true;
               console.log(`👤 Admin текст бичлээ → bot унтарлаа → ${recipientId}`);
             }
             return;
           }
+
           if (event.message && !event.message.is_echo) handleMessage(event);
           else if (event.postback) handlePostback(event);
         });
@@ -269,22 +305,19 @@ async function handlePostback(event) {
       await sendText(senderId, "Сайн байна уу! Boroldoi AI Studio-д тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?");
       userConversations[senderId].push({ role: "assistant", content: "Сайн байна уу! Та хэдэн хүнтэй зураг хийлгэх вэ?" });
       break;
-
     case "ORDER_START":
       delete adminTakenOver[senderId];
       userConversations[senderId] = [];
       await sendText(senderId, "Зураг захиалах хэсэгт тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?\n\nУнэ:\n1 хун - 30,000₮\n2 хун - 50,000₮\n3 хун - 70,000₮\n4 хун - 100,000₮\n5 хун - 130,000₮\n...\n\nТоог бичнэ үү:");
       userConversations[senderId].push({ role: "assistant", content: "Зураг захиалах. Хэдэн хүн?" });
       break;
-
     case "VIEW_PRICES":
       delete adminTakenOver[senderId];
       await sendText(senderId, "УНЭ ЖАГСААЛТ\n\nЗУРАХ УНЭ:\n1 хун - 30,000₮\n2 хун - 50,000₮\n3 хун - 70,000₮\n4 хун - 100,000₮\n5 хун - 130,000₮\n6 хун - 160,000₮\n7 хун - 190,000₮\n8 хун - 220,000₮\n9 хун - 250,000₮\n10 хун - 280,000₮\n11 хун - 310,000₮\n\nЯаралтай (24-48 цаг): +20%\nЭнгийн: 5 хоног\n\nУГААХ + ЖААЗЛАХ:\nA4 - 50,000₮\nA3 - 80,000₮\n\nЗурах болон угаах унэ тус тусдаа");
       break;
-
     case "OPERATOR":
       adminTakenOver[senderId] = true;
-      await sendText(senderId, "Ажилтантай холбогдож байна, хүлээнэ үү...\n\nУдахгүй манай ажилтан хариулах болно.");
+      await sendText(senderId, "Ажилтантай холбогдож байна, хулээнэ уу...\n\nУдахгүй манай ажилтан хариулах болно.");
       console.log(`👤 Хэрэглэгч оператор хүслээ → bot унтарлаа → ${senderId}`);
       break;
   }
@@ -326,7 +359,7 @@ async function handlePaymentScreenshot(senderId, imageUrl) {
     delete userStates[senderId];
     userConversations[senderId] = [];
     await sendText(senderId,
-      `Төлбөр баталгаажлаа!\n\nЗахиалга амжилттай бүртгэгдлээ!\n\nЗахиалгын дугаар: #${orderNum}\nНэр: ${order.name}\nУтас: ${order.phone}\nЗурах: ${order.count ? order.count+" хүн" : "-"}\n${order.washSize ? "Угаах: "+order.washSize+" хэмжээ\n" : ""}Хугацаа: ${order.speed==="яаралтай" ? "Яаралтай (24-48 цаг)" : "Энгийн (5 хоног)"}\nНийт үнэ: ${(order.totalPrice||order.price)?.toLocaleString()}₮\n\nЗураг бэлэн болохоор манайхаас холбогдоно. Баярлалаа!`
+      `Төлбөр баталгаажлаа!\n\nЗахиалга амжилттай бүртгэгдлээ!\n\nЗахиалгын дугаар: #${orderNum}\nНэр: ${order.name}\nУтас: ${order.phone}\nЗурах: ${order.count ? order.count+" хүн" : "-"}\n${order.washSize ? "Угаах: "+order.washSize+" хэмжээ\n" : ""}Хугацаа: ${order.speed==="яаралтай" ? "Яаралтай (24-48 цаг)" : "Энгийн (5 хоног)"}\nНийт унэ: ${(order.totalPrice||order.price)?.toLocaleString()}₮\n\nЗураг бэлэн болохоор манайхаас холбогдоно. Баярлалаа!`
     );
   } else {
     await sendText(senderId,
@@ -426,5 +459,6 @@ async function setupPersistentMenu() {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`🚀 Bot ажиллаж байна: port ${PORT}`);
+  await getPageId();
   await setupPersistentMenu();
 });
