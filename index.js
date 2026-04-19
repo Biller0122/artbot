@@ -22,54 +22,54 @@ const userStates = {};
 const adminTakenOver = {};
 const EXCEL_FILE = path.join(__dirname, "zahialga.xlsx");
 
-const SYSTEM_PROMPT = `Чи "Boroldoi AI Studio" зургийн захиалгын Facebook page-ийн туслах ажилтан юм. Сайн байна уу. Та Бородой АЙ студитэй холбогдлоо. Та хэдэн хүнтэй зураг хийлгэх вэ гэж асуу.
-ЗААВАЛ Монгол хэлээр хариул. Найрсаг, товч байна. Ямар ч нөхцөлд англиар хариулж болохгүй. Монголоор алдаатай бичиж болохгүй. Хүн рүү нэг удаа текст бичээд хүлээх, нэг хариултаа олон дахин явуулж болохгүй.
-Эхлээд мэдээлэл асуухад үнийн мэдээлэл болон зураг хийх хугацааг танилцуулна.
-Түүний дараа асуултуудаа асууж эхэлнэ. Харилцагч юм асуусан тохиолдолд хариу бич. Битгий нэг асуултаа давтаад бай
+const SYSTEM_PROMPT = `Чи "Boroldoi AI Studio" зургийн захиалгын Facebook page-ийн туслах ажилтан юм.
+ЗААВАЛ Монгол хэлээр хариул. Найрсаг, товч байна.
+Markdown форматлалт огт хэрэглэхгүй — **, *, #, _ зэрэг тэмдэгтүүдийг ХЭЗЭЭ Ч бичихгүй.
+Энгийн текстээр л бич.
 
 ҮНЭ ЖАГСААЛТ:
-1 хүн – 30,000₮
-2 хүн – 50,000₮
-3 хүн – 70,000₮
-4 хүн – 100,000₮
-5 хүн – 130,000₮
-6 хүн – 160,000₮
-7 хүн – 190,000₮
-8 хүн – 220,000₮
-9 хүн – 250,000₮
-10 хүн – 280,000₮
-11 хүн – 310,000₮
-⚡ Яаралтай (24-48 цаг): +20%, хүргэлт +1 хоног нэмэгдэнэ
-📅 Энгийн: 5 хоногт гарна
+1 хүн - 30,000₮
+2 хүн - 50,000₮
+3 хүн - 70,000₮
+4 хүн - 100,000₮
+5 хүн - 130,000₮
+6 хүн - 160,000₮
+7 хүн - 190,000₮
+8 хүн - 220,000₮
+9 хүн - 250,000₮
+10 хүн - 280,000₮
+11 хүн - 310,000₮
+Яаралтай (24-48 цаг): +20%, хүргэлт +1 хоног нэмэгдэнэ
+Энгийн: 5 хоногт гарна
 
-УГААХ + ЖААЗЛАХ ҮНЭ (хүргэлт үнэгүй):
-A4 хэмжээ (арьсан бүрэлттэй угаалт, 20х30см жааз) – 50,000₮
-A3 хэмжээ (арьсан бүрэлттэй угаалт, 40х30см жааз) – 80,000₮
+УГААХ + ЖААЗЛАХ (хүргэлт үнэгүй):
+A4 хэмжээ (арьсан бүрэлттэй угаалт, 20x30см жааз) - 50,000₮
+A3 хэмжээ (арьсан бүрэлттэй угаалт, 40x30см жааз) - 80,000₮
 Зурах болон угаах үнэ ТУС ТУСДАА тооцогдоно.
-Жишээ: 3 хүн зурах (70,000₮) + A4 угаах (50,000₮) = нийт 120,000₮
 
-Хөдөө орон нутгийн захиалганд унаанд тавьж өгнө гэж хариул.
-Утасны дугаарыг асуух шаардлагагүй.
+Хөдөө орон нутгийн захиалганд унаанд тавьж өгнө.
+Угааж жаазлах үед зурган дээр үг бичүүлэх үнэгүй.
 
 ЗАХИАЛГА АВАХ ДЭС ДАРААЛАЛ:
-1. Хэдэн хүн зурах вэ? гэж асуу.
-2. Яаралтай эсвэл энгийн гэж асуу.
-3. Файлаар авах уу, угааж жаазлуулах уу гэж асуу.
-4. Угаалга сонговол A4 эсвэл A3 гэж асуу.
-5. Хариулт ирсний дараа хүн тус бүрийн царай тод гарсан зургаа явуулаарай гэж асуу. ямар ч зураг явуулсан юм битгий асуу болж байна гэж хэл
-6. Нийт үнийг хэлэх.
-7. Зургаа явуулсаны дараа хүн тус бүрийн холбоо хамаарал асуух.
-8. Зураг явуулсан тохиолдолд бусад зүйл асуухгүй байх. Зураг явуулсан тохиолдолд дахин битгий зураг асуу
-10. Утас мэдэгдвэл төлбөрийн JSON тавь.
+1. Хэдэн хүн зурах вэ?
+2. Яаралтай эсвэл энгийн?
+3. Файлаар авах уу эсвэл угааж жаазлуулах уу?
+4. Угаалга сонговол A4 эсвэл A3?
+5. Нийт үнийг хэлэх
+6. Хүн тус бүрийн царай тод гарсан зургаа явуулаарай гэж НЭГ УДАА л хүс
+7. Зургууд ирсний дараа хүн тус бүрийн хоорондын холбоо хамаарал асуу (жишээ: ах эгч, эцэг хүү гэх мэт)
+8. Утасны дугаар асуу
+9. Утас ирвэл JSON тавь
 
 ЧУХАЛ ДҮРЭМ:
-- Өмнөх яриагаа үргэлж санаж байх. Хэрэглэгч өмнө хэлсэн зүйлийг дахин асуухгүй.
-- Зөвхөн Монгол хэлээр харилц, алдаагүй бичих.
-- Нэг асуулт нэг удаа асуу.
-- Яаралтай үнэ = үндсэн үнэ × 1.2 (бүхэл тоо).
-- Оператор гэвэл: Оператортой холбогдож байна, хүлээнэ үү 🙋
+- Өмнөх яриагаа ЗААВАЛ санаж байх. Хэрэглэгч хэлсэн зүйлийг ДАХИН асуухгүй.
+- Хэрэглэгч зураг явуулсан бол "зургаа явуулаарай" гэж ДАХИН хэлэхгүй.
+- Нэг асуулт НЭГЛ удаа асуу, давтахгүй.
+- Яаралтай үнэ = үндсэн үнэ x 1.2 (бүхэл тоо).
+- Үнэ хэлэхдээ энгийн текстээр бич, markdown хэрэглэхгүй.
+- "Оператор" гэвэл: Оператортой холбогдож байна, хүлээнэ үү
 - Зургийн бизнестэй холбоогүй асуултад: Уучлаарай, би зөвхөн зургийн захиалгын талаар мэдээлэл өгч чадна.
-- Угааж жаазлуулж байгаа үед хэвлэж байгаа зурган дээр үг бичүүлэх үнэгүй.
+- Хэрэглэгч шинэ зураг нэмж явуулбал тэрийг харж тайлбарла, дахин "зураг явуулаарай" гэж хэлэхгүй.
 
 Утас авмагц хариуны төгсгөлд заавал энэ JSON тавь:
 ###AWAITING_PAYMENT###{"type":"зурах","count":3,"speed":"яаралтай","price":84000,"name":"Болор","phone":"99001122","washSize":"A4","totalPrice":134000}###END###`;
@@ -172,29 +172,16 @@ app.post("/webhook", (req, res) => {
     body.entry.forEach(entry => {
       if (entry.messaging) {
         entry.messaging.forEach(event => {
-
-          // =============================================
-          // 👤 ADMIN МЕССЕЖ ШАЛГАХ
-          // Зөвхөн admin БОДИТ ТЕКСТ бичсэн үед л bot унтарна
-          // Seen, read receipt, зураг зэрэг нь тооцохгүй
-          // =============================================
+          // Admin текст бичсэн үед л bot унтарна
           if (event.message?.is_echo) {
             const recipientId = event.recipient?.id;
-
-            // Зөвхөн текст агуулсан мессеж бол bot унтарна
-            // Attachments (зураг, sticker) болон системийн мессежийг тооцохгүй
             const hasText = event.message?.text && event.message.text.trim().length > 0;
-            const isSystemMsg = event.message?.tags?.data?.some(
-              t => t.name === "HUMAN_AGENT"
-            );
-
             if (recipientId && hasText) {
               adminTakenOver[recipientId] = true;
               console.log(`👤 Admin текст бичлээ → bot унтарлаа → ${recipientId}`);
             }
             return;
           }
-
           if (event.message && !event.message.is_echo) handleMessage(event);
           else if (event.postback) handlePostback(event);
         });
@@ -238,7 +225,7 @@ async function handleMessage(event) {
   if (userStates[senderId]?.awaitingPayment) {
     const order = userStates[senderId].order;
     await sendText(senderId,
-      `💳 Төлбөрийн мэдээлэл:\n\n🏦 Банк: ${BANK_INFO.bank}\n💳 Дансны дугаар: ${BANK_INFO.account}\n👤 Нэр: ${BANK_INFO.owner}\n🔢 IBAN: ${BANK_INFO.iban}\n💰 Шилжүүлэх дүн: ${(order.totalPrice||order.price)?.toLocaleString()}₮\n📝 Утга: өөрийн Facebook нэр + утасны дугаар\n\nШилжүүлсний дараа баримтаа screenshot хийж илгээнэ үү 📸`
+      `Төлбөрийн мэдээлэл:\n\nБанк: ${BANK_INFO.bank}\nДансны дугаар: ${BANK_INFO.account}\nНэр: ${BANK_INFO.owner}\nIBAN: ${BANK_INFO.iban}\nШилжүүлэх дүн: ${(order.totalPrice||order.price)?.toLocaleString()}₮\nУтга: өөрийн Facebook нэр + утасны дугаар\n\nШилжүүлсний дараа баримтаа screenshot хийж илгээнэ үү`
     );
     return;
   }
@@ -259,7 +246,7 @@ async function handleMessage(event) {
       const cleanReply = reply.replace(/###AWAITING_PAYMENT###.+?###END###/s, "").trim();
       if (cleanReply) await sendText(senderId, cleanReply);
       await sendText(senderId,
-        `💳 Төлбөрийн мэдээлэл:\n\n🏦 Банк: ${BANK_INFO.bank}\n💳 Дансны дугаар: ${BANK_INFO.account}\n👤 Нэр: ${BANK_INFO.owner}\n🔢 IBAN: ${BANK_INFO.iban}\n💰 Шилжүүлэх дүн: ${(orderData.totalPrice||orderData.price)?.toLocaleString()}₮\n📝 Утга: өөрийн Facebook нэр + утасны дугаар\n\nШилжүүлсний дараа баримтаа screenshot хийж илгээнэ үү 📸`
+        `Төлбөрийн мэдээлэл:\n\nБанк: ${BANK_INFO.bank}\nДансны дугаар: ${BANK_INFO.account}\nНэр: ${BANK_INFO.owner}\nIBAN: ${BANK_INFO.iban}\nШилжүүлэх дүн: ${(orderData.totalPrice||orderData.price)?.toLocaleString()}₮\nУтга: өөрийн Facebook нэр + утасны дугаар\n\nШилжүүлсний дараа баримтаа screenshot хийж илгээнэ үү`
       );
       userConversations[senderId].push({ role: "assistant", content: cleanReply });
     } catch(e) { console.error("Parse алдаа:", e); }
@@ -279,25 +266,25 @@ async function handlePostback(event) {
     case "GET_STARTED":
       delete adminTakenOver[senderId];
       userConversations[senderId] = [];
-      await sendText(senderId, "Сайн байна уу! 👋 Boroldoi AI Studio-д тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?");
+      await sendText(senderId, "Сайн байна уу! Boroldoi AI Studio-д тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?");
       userConversations[senderId].push({ role: "assistant", content: "Сайн байна уу! Та хэдэн хүнтэй зураг хийлгэх вэ?" });
       break;
 
     case "ORDER_START":
       delete adminTakenOver[senderId];
       userConversations[senderId] = [];
-      await sendText(senderId, "🎨 Зураг захиалах хэсэгт тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?\n\n💰 Үнэ:\n1 хүн – 30,000₮\n2 хүн – 50,000₮\n3 хүн – 70,000₮\n4 хүн – 100,000₮\n5 хүн – 130,000₮\n...\n\nТоог бичнэ үү:");
+      await sendText(senderId, "Зураг захиалах хэсэгт тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?\n\nУнэ:\n1 хун - 30,000₮\n2 хун - 50,000₮\n3 хун - 70,000₮\n4 хун - 100,000₮\n5 хун - 130,000₮\n...\n\nТоог бичнэ үү:");
       userConversations[senderId].push({ role: "assistant", content: "Зураг захиалах. Хэдэн хүн?" });
       break;
 
     case "VIEW_PRICES":
       delete adminTakenOver[senderId];
-      await sendText(senderId, "💰 ҮНЭ ЖАГСААЛТ\n\n🖼️ ЗУРАХ ҮНЭ:\n1 хүн – 30,000₮\n2 хүн – 50,000₮\n3 хүн – 70,000₮\n4 хүн – 100,000₮\n5 хүн – 130,000₮\n6 хүн – 160,000₮\n7 хүн – 190,000₮\n8 хүн – 220,000₮\n9 хүн – 250,000₮\n10 хүн – 280,000₮\n11 хүн – 310,000₮\n\n⚡ Яаралтай (24-48 цаг): +20%\n📅 Энгийн: 5 хоног\n\n📏 УГААХ + ЖААЗЛАХ:\nA4 – 50,000₮\nA3 – 80,000₮\n\n⚠️ Зурах болон угаах үнэ тус тусдаа");
+      await sendText(senderId, "УНЭ ЖАГСААЛТ\n\nЗУРАХ УНЭ:\n1 хун - 30,000₮\n2 хун - 50,000₮\n3 хун - 70,000₮\n4 хун - 100,000₮\n5 хун - 130,000₮\n6 хун - 160,000₮\n7 хун - 190,000₮\n8 хун - 220,000₮\n9 хун - 250,000₮\n10 хун - 280,000₮\n11 хун - 310,000₮\n\nЯаралтай (24-48 цаг): +20%\nЭнгийн: 5 хоног\n\nУГААХ + ЖААЗЛАХ:\nA4 - 50,000₮\nA3 - 80,000₮\n\nЗурах болон угаах унэ тус тусдаа");
       break;
 
     case "OPERATOR":
       adminTakenOver[senderId] = true;
-      await sendText(senderId, "🙋 Ажилтантай холбогдож байна, хүлээнэ үү...\n\nУдахгүй манай ажилтан хариулах болно.");
+      await sendText(senderId, "Ажилтантай холбогдож байна, хүлээнэ үү...\n\nУдахгүй манай ажилтан хариулах болно.");
       console.log(`👤 Хэрэглэгч оператор хүслээ → bot унтарлаа → ${senderId}`);
       break;
   }
@@ -326,24 +313,24 @@ async function handleOrderImage(senderId, imageUrl) {
     userConversations[senderId].push({ role: "assistant", content: cleanReply });
   } catch(err) {
     console.error("Зураг боловсруулах алдаа:", err.message);
-    await sendText(senderId, "Зургийг хүлээн авлаа. Тохиргооны дэлгэрэнгүйг ярилцацгааная.");
+    await sendText(senderId, "Зургийг хүлээн авлаа.");
   }
 }
 
 async function handlePaymentScreenshot(senderId, imageUrl) {
   const order = userStates[senderId].order;
-  await sendText(senderId, "⏳ Төлбөрийг шалгаж байна...");
+  await sendText(senderId, "Төлбөрийг шалгаж байна...");
   const result = await verifyPaymentScreenshot(imageUrl, order.totalPrice || order.price);
   if (result.isPayment && result.confirmed) {
     const orderNum = await saveToExcel(order);
     delete userStates[senderId];
     userConversations[senderId] = [];
     await sendText(senderId,
-      `✅ Төлбөр баталгаажлаа!\n\n🎉 Захиалга амжилттай бүртгэгдлээ!\n\n📋 Захиалгын дугаар: #${orderNum}\n👤 Нэр: ${order.name}\n📱 Утас: ${order.phone}\n🎨 Зурах: ${order.count ? order.count+" хүн" : "-"}\n${order.washSize ? "✨ Угаах: "+order.washSize+" хэмжээ\n" : ""}⏱️ Хугацаа: ${order.speed==="яаралтай" ? "Яаралтай (24-48 цаг)" : "Энгийн (5 хоног)"}\n💰 Нийт үнэ: ${(order.totalPrice||order.price)?.toLocaleString()}₮\n\nЗураг бэлэн болохоор манайхаас холбогдоно. Баярлалаа! 🎨`
+      `Төлбөр баталгаажлаа!\n\nЗахиалга амжилттай бүртгэгдлээ!\n\nЗахиалгын дугаар: #${orderNum}\nНэр: ${order.name}\nУтас: ${order.phone}\nЗурах: ${order.count ? order.count+" хүн" : "-"}\n${order.washSize ? "Угаах: "+order.washSize+" хэмжээ\n" : ""}Хугацаа: ${order.speed==="яаралтай" ? "Яаралтай (24-48 цаг)" : "Энгийн (5 хоног)"}\nНийт үнэ: ${(order.totalPrice||order.price)?.toLocaleString()}₮\n\nЗураг бэлэн болохоор манайхаас холбогдоно. Баярлалаа!`
     );
   } else {
     await sendText(senderId,
-      `❌ Төлбөр баталгаажуулах боломжгүй байна.\n\nДараахыг шалгана уу:\n• Зураг тодорхой харагдаж байна уу?\n• Шилжүүлсэн дүн зөв байна уу? (${(order.totalPrice||order.price)?.toLocaleString()}₮)\n• Гүйлгээ амжилттай болсон уу?\n\nДахин илгээнэ үү эсвэл оператортой холбогдоно уу.`
+      `Төлбөр баталгаажуулах боломжгүй байна.\n\nДараахыг шалгана уу:\n- Зураг тодорхой харагдаж байна уу?\n- Шилжүүлсэн дүн зөв байна уу? (${(order.totalPrice||order.price)?.toLocaleString()}₮)\n- Гүйлгээ амжилттай болсон уу?\n\nДахин илгээнэ үү эсвэл оператортой холбогдоно уу.`
     );
   }
 }
@@ -354,7 +341,7 @@ async function handleComment(commentData) {
   if (!commenterId) return;
   userConversations[commenterId] = [];
   delete adminTakenOver[commenterId];
-  const greeting = `Сайн байна уу, ${commenterName}! 👋\n\nBoroldoi AI Studio-д тавтай морилно уу! 🎨\n\nТа зураг захиалах эсвэл үнэ лавлахыг хүсэж байна уу?`;
+  const greeting = `Сайн байна уу, ${commenterName}!\n\nBoroldoi AI Studio-д тавтай морилно уу!\n\nТа зураг захиалах эсвэл үнэ лавлахыг хүсэж байна уу?`;
   await sendText(commenterId, greeting);
   userConversations[commenterId].push({ role: "assistant", content: greeting });
 }
@@ -401,7 +388,7 @@ app.get("/bot-on", (req, res) => {
   const userId = req.query.user;
   if (userId) {
     delete adminTakenOver[userId];
-    return res.json({ success: true, message: `Bot ${userId}-д дахин асаалаа` });
+    return res.json({ success: true, message: `Bot дахин асаалаа` });
   }
   Object.keys(adminTakenOver).forEach(k => delete adminTakenOver[k]);
   res.json({ success: true, message: "Бүх bot дахин асаалаа" });
@@ -422,9 +409,9 @@ async function setupPersistentMenu() {
           locale: "default",
           composer_input_disabled: false,
           call_to_actions: [
-            { type: "postback", title: "🎨 Зураг захиалах", payload: "ORDER_START" },
-            { type: "postback", title: "💰 Үнэ мэдэх", payload: "VIEW_PRICES" },
-            { type: "postback", title: "👤 Ажилтантай холбогдох", payload: "OPERATOR" },
+            { type: "postback", title: "Зураг захиалах", payload: "ORDER_START" },
+            { type: "postback", title: "Унэ медэх", payload: "VIEW_PRICES" },
+            { type: "postback", title: "Ажилтантай холбогдох", payload: "OPERATOR" },
           ]
         }],
         get_started: { payload: "GET_STARTED" }
