@@ -19,7 +19,6 @@ const BANK_INFO = {
 
 const userConversations = {};
 const userStates = {};
-// Admin хяналт авсан хэрэглэгчдийн жагсаалт
 const adminTakenOver = {};
 const EXCEL_FILE = path.join(__dirname, "zahialga.xlsx");
 
@@ -29,7 +28,6 @@ const SYSTEM_PROMPT = `Чи "Boroldoi AI Studio" зургийн захиалгы
 Түүний дараа асуултуудаа асууж эхэлнэ.
 
 ҮНЭ ЖАГСААЛТ:
-🖼️ ЗУРАХ ҮНЭ (файл хэлбэрээр):
 1 хүн – 30,000₮
 2 хүн – 50,000₮
 3 хүн – 70,000₮
@@ -44,17 +42,17 @@ const SYSTEM_PROMPT = `Чи "Boroldoi AI Studio" зургийн захиалгы
 ⚡ Яаралтай (24-48 цаг): +20%, хүргэлт +1 хоног нэмэгдэнэ
 📅 Энгийн: 5 хоногт гарна
 
-📏 УГААХ + ЖААЗЛАХ ҮНЭ (хүргэлт үнэгүй):
+УГААХ + ЖААЗЛАХ ҮНЭ (хүргэлт үнэгүй):
 A4 хэмжээ (арьсан бүрэлттэй угаалт, 20х30см жааз) – 50,000₮
 A3 хэмжээ (арьсан бүрэлттэй угаалт, 40х30см жааз) – 80,000₮
-⚠️ Зурах болон угаах үнэ ТУС ТУСДАА тооцогдоно.
+Зурах болон угаах үнэ ТУС ТУСДАА тооцогдоно.
 Жишээ: 3 хүн зурах (70,000₮) + A4 угаах (50,000₮) = нийт 120,000₮
 
 Хөдөө орон нутгийн захиалганд унаанд тавьж өгнө гэж хариул.
-Хүмүүсийн утасны дугаарыг асуух шаардлагагүй.
+Утасны дугаарыг асуух шаардлагагүй.
 
 ЗАХИАЛГА АВАХ ДЭС ДАРААЛАЛ:
-1. Хэдэн хүн зурах вэ? гэж асуу. Жишээ нь 2 хүнтэй зураг хийлгэнэ гэвэл файл хэлбэрээр гарахад 50,000₮ гэх мэт.
+1. Хэдэн хүн зурах вэ? гэж асуу.
 2. Яаралтай эсвэл энгийн гэж асуу.
 3. Файлаар авах уу, угааж жаазлуулах уу гэж асуу.
 4. Угаалга сонговол A4 эсвэл A3 гэж асуу.
@@ -67,9 +65,8 @@ A3 хэмжээ (арьсан бүрэлттэй угаалт, 40х30см жаа
 
 ЧУХАЛ ДҮРЭМ:
 - Өмнөх яриагаа үргэлж санаж байх. Хэрэглэгч өмнө хэлсэн зүйлийг дахин асуухгүй.
-- Хэрэглэгч өмнө хэдэн хүн гэж хэлсэн бол тэр мэдээллийг ашиглах.
-- Зөвхөн Монгол хэлээр харилц, англи үг хэрэглэхгүй, монгол хэлээр алдаагүй бичих.
-- Нэг асуулт нэг удаа асуу. Хэзээ гарах вэ гэж асуувал тухайн өдрөөс хамаарч яаралтай 1-2 хоногт, энгийн 5 хоног гэдгийг нэмэх.
+- Зөвхөн Монгол хэлээр харилц, алдаагүй бичих.
+- Нэг асуулт нэг удаа асуу.
 - Яаралтай үнэ = үндсэн үнэ × 1.2 (бүхэл тоо).
 - Оператор гэвэл: Оператортой холбогдож байна, хүлээнэ үү 🙋
 - Зургийн бизнестэй холбоогүй асуултад: Уучлаарай, би зөвхөн зургийн захиалгын талаар мэдээлэл өгч чадна.
@@ -78,6 +75,9 @@ A3 хэмжээ (арьсан бүрэлттэй угаалт, 40х30см жаа
 Утас авмагц хариуны төгсгөлд заавал энэ JSON тавь:
 ###AWAITING_PAYMENT###{"type":"зурах","count":3,"speed":"яаралтай","price":84000,"name":"Болор","phone":"99001122","washSize":"A4","totalPrice":134000}###END###`;
 
+// =============================================
+// 🏷️ LABEL
+// =============================================
 function generateLabel(order) {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -88,6 +88,9 @@ function generateLabel(order) {
   return labels.join(" | ");
 }
 
+// =============================================
+// 📊 EXCEL
+// =============================================
 async function saveToExcel(order) {
   const workbook = new ExcelJS.Workbook();
   let worksheet;
@@ -125,6 +128,9 @@ async function saveToExcel(order) {
   return orderNum;
 }
 
+// =============================================
+// 🖼️ ТӨЛБӨР ШАЛГАХ
+// =============================================
 async function verifyPaymentScreenshot(imageUrl, expectedAmount) {
   try {
     const imageResponse = await axios.get(imageUrl, {
@@ -164,36 +170,33 @@ async function verifyPaymentScreenshot(imageUrl, expectedAmount) {
   }
 }
 
+// =============================================
+// 🔗 WEBHOOK VERIFY
+// =============================================
 app.get("/webhook", (req, res) => {
   if (req.query["hub.mode"] === "subscribe" && req.query["hub.verify_token"] === VERIFY_TOKEN) {
     res.status(200).send(req.query["hub.challenge"]);
   } else res.sendStatus(403);
 });
 
+// =============================================
+// 📨 WEBHOOK
+// =============================================
 app.post("/webhook", (req, res) => {
   const body = req.body;
   if (body.object === "page") {
     body.entry.forEach(entry => {
       if (entry.messaging) {
         entry.messaging.forEach(event => {
-          // ======================================
-          // 🔑 ADMIN ХЯНАЛТ АВСАН МЕССЕЖ
-          // ======================================
-          // Page admin хариу бичсэн бол (is_echo = true, app_id байхгүй)
+          // Admin мессеж бичсэн бол (echo) → bot унтарна
           if (event.message?.is_echo) {
             const recipientId = event.recipient?.id;
-            const senderId = event.sender?.id;
-
-            // Page өөрөө мессеж явуулсан бол admin хяналт авсан гэж үзнэ
             if (recipientId) {
-              if (!adminTakenOver[recipientId]) {
-                adminTakenOver[recipientId] = true;
-                console.log(`👤 Admin хяналт авлаа → ${recipientId}`);
-              }
+              adminTakenOver[recipientId] = true;
+              console.log(`👤 Admin хяналт авлаа → ${recipientId}`);
             }
             return;
           }
-
           if (event.message && !event.message.is_echo) handleMessage(event);
           else if (event.postback) handlePostback(event);
         });
@@ -210,32 +213,16 @@ app.post("/webhook", (req, res) => {
   } else res.sendStatus(404);
 });
 
-// ======================================
-// 🔄 BOT ДАХИН ИДЭВХЖҮҮЛЭХ ENDPOINT
-// ======================================
-app.get("/bot-on", (req, res) => {
-  if (req.query.token !== VERIFY_TOKEN) return res.status(403).send("Зөвшөөрөлгүй");
-  const userId = req.query.user;
-  if (userId) {
-    delete adminTakenOver[userId];
-    console.log(`🤖 Bot дахин идэвхжлээ → ${userId}`);
-    return res.json({ success: true, message: `Bot ${userId} хэрэглэгчид дахин идэвхжлээ` });
-  }
-  // Бүх хэрэглэгчид дахин идэвхжүүлэх
-  Object.keys(adminTakenOver).forEach(k => delete adminTakenOver[k]);
-  console.log("🤖 Бүх bot дахин идэвхжлээ");
-  res.json({ success: true, message: "Бүх bot дахин идэвхжлээ" });
-});
-
+// =============================================
+// 💬 МЕССЕЖ БОЛОВСРУУЛАХ
+// =============================================
 async function handleMessage(event) {
   const senderId = event.sender.id;
   const message = event.message;
 
-  // ======================================
-  // 👤 ADMIN ХЯНАЛТ АВСАН БОЛ BOT УНТАРНА
-  // ======================================
+  // Admin хяналт авсан бол bot унтарна
   if (adminTakenOver[senderId]) {
-    console.log(`🔕 Bot унтарсан — Admin хяналт авсан → ${senderId}`);
+    console.log(`🔕 Bot унтарсан → ${senderId}`);
     return;
   }
 
@@ -290,7 +277,63 @@ async function handleMessage(event) {
   userConversations[senderId].push({ role: "assistant", content: cleanReply });
 }
 
+// =============================================
+// 📋 POSTBACK — Товч дарсан үед
+// =============================================
+async function handlePostback(event) {
+  const senderId = event.sender.id;
+  const payload = event.postback.payload;
+
+  switch (payload) {
+    case "GET_STARTED":
+      delete adminTakenOver[senderId];
+      userConversations[senderId] = [];
+      await sendText(senderId,
+        "Сайн байна уу! 👋 Boroldoi AI Studio-д тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?"
+      );
+      userConversations[senderId].push({
+        role: "assistant",
+        content: "Сайн байна уу! 👋 Boroldoi AI Studio-д тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?"
+      });
+      break;
+
+    case "ORDER_START":
+      // Bot идэвхжүүлж захиалга эхлүүлнэ
+      delete adminTakenOver[senderId];
+      userConversations[senderId] = [];
+      await sendText(senderId,
+        "🎨 Зураг захиалах хэсэгт тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?\n\n💰 Үнэ:\n1 хүн – 30,000₮\n2 хүн – 50,000₮\n3 хүн – 70,000₮\n4 хүн – 100,000₮\n5 хүн – 130,000₮\n...\n\nТоог бичнэ үү:"
+      );
+      userConversations[senderId].push({
+        role: "assistant",
+        content: "Зураг захиалах. Хэдэн хүн?"
+      });
+      break;
+
+    case "VIEW_PRICES":
+      // Үнэ жагсаалт харуулна
+      delete adminTakenOver[senderId];
+      await sendText(senderId,
+        "💰 ҮНЭ ЖАГСААЛТ\n\n🖼️ ЗУРАХ ҮНЭ:\n1 хүн – 30,000₮\n2 хүн – 50,000₮\n3 хүн – 70,000₮\n4 хүн – 100,000₮\n5 хүн – 130,000₮\n6 хүн – 160,000₮\n7 хүн – 190,000₮\n8 хүн – 220,000₮\n9 хүн – 250,000₮\n10 хүн – 280,000₮\n11 хүн – 310,000₮\n\n⚡ Яаралтай (24-48 цаг): +20%\n📅 Энгийн: 5 хоног\n\n📏 УГААХ + ЖААЗЛАХ:\nA4 – 50,000₮\nA3 – 80,000₮\n\n⚠️ Зурах болон угаах үнэ тус тусдаа\n\nЗахиалга өгмөөр байвал доорх цэснээс сонгоно уу!"
+      );
+      break;
+
+    case "OPERATOR":
+      // Bot унтарч admin хариулна
+      adminTakenOver[senderId] = true;
+      await sendText(senderId,
+        "🙋 Ажилтантай холбогдож байна, хүлээнэ үү...\n\nУдахгүй манай ажилтан хариулах болно."
+      );
+      console.log(`👤 Хэрэглэгч оператор хүслээ → bot унтарлаа → ${senderId}`);
+      break;
+  }
+}
+
+// =============================================
+// 🖼️ ЗАХИАЛГЫН ЗУРАГ
+// =============================================
 async function handleOrderImage(senderId, imageUrl) {
+  if (adminTakenOver[senderId]) return;
   if (!userConversations[senderId]) userConversations[senderId] = [];
   try {
     const imageResponse = await axios.get(imageUrl, {
@@ -316,6 +359,9 @@ async function handleOrderImage(senderId, imageUrl) {
   }
 }
 
+// =============================================
+// 📸 ТӨЛБӨРИЙН SCREENSHOT
+// =============================================
 async function handlePaymentScreenshot(senderId, imageUrl) {
   const order = userStates[senderId].order;
   await sendText(senderId, "⏳ Төлбөрийг шалгаж байна...");
@@ -334,26 +380,23 @@ async function handlePaymentScreenshot(senderId, imageUrl) {
   }
 }
 
+// =============================================
+// 📝 COMMENT
+// =============================================
 async function handleComment(commentData) {
   const commenterId = commentData.from?.id;
   const commenterName = commentData.from?.name || "Та";
   if (!commenterId) return;
   userConversations[commenterId] = [];
+  delete adminTakenOver[commenterId];
   const greeting = `Сайн байна уу, ${commenterName}! 👋\n\nBoroldoi AI Studio-д тавтай морилно уу! 🎨\n\nТа зураг захиалах эсвэл үнэ лавлахыг хүсэж байна уу?`;
   await sendText(commenterId, greeting);
   userConversations[commenterId].push({ role: "assistant", content: greeting });
 }
 
-async function handlePostback(event) {
-  const senderId = event.sender.id;
-  if (event.postback.payload === "GET_STARTED") {
-    userConversations[senderId] = [];
-    const greeting = "Сайн байна уу! 👋 Boroldoi AI Studio-д тавтай морилно уу!\n\nТа зураг захиалах, үнэ лавлах зэрэгт би тусалж чадна.\n\nТа юу хүсэж байна вэ?";
-    await sendText(senderId, greeting);
-    userConversations[senderId].push({ role: "assistant", content: greeting });
-  }
-}
-
+// =============================================
+// 🤖 CLAUDE AI
+// =============================================
 async function getClaudeReply(senderId) {
   try {
     const response = await axios.post(
@@ -379,6 +422,9 @@ async function getClaudeReply(senderId) {
   }
 }
 
+// =============================================
+// 📤 МЕССЕЖ ИЛГЭЭХ
+// =============================================
 async function sendText(recipientId, text) {
   try {
     await axios.post(
@@ -391,11 +437,57 @@ async function sendText(recipientId, text) {
   }
 }
 
+// =============================================
+// 🔄 BOT ДАХИН АСААХ
+// =============================================
+app.get("/bot-on", (req, res) => {
+  if (req.query.token !== VERIFY_TOKEN) return res.status(403).send("Зөвшөөрөлгүй");
+  const userId = req.query.user;
+  if (userId) {
+    delete adminTakenOver[userId];
+    return res.json({ success: true, message: `Bot ${userId}-д дахин асаалаа` });
+  }
+  Object.keys(adminTakenOver).forEach(k => delete adminTakenOver[k]);
+  res.json({ success: true, message: "Бүх bot дахин асаалаа" });
+});
+
+// =============================================
+// 📊 EXCEL ТАТАХ
+// =============================================
 app.get("/download", (req, res) => {
   if (req.query.token !== VERIFY_TOKEN) return res.status(403).send("Зөвшөөрөлгүй");
   if (!fs.existsSync(EXCEL_FILE)) return res.status(404).send("Захиалга байхгүй");
   res.download(EXCEL_FILE, "zahialga.xlsx");
 });
 
+// =============================================
+// 🚀 СЕРВЕР + PERSISTENT MENU ТОХИРУУЛАХ
+// =============================================
+async function setupPersistentMenu() {
+  try {
+    await axios.post(
+      `https://graph.facebook.com/v19.0/me/messenger_profile?access_token=${PAGE_ACCESS_TOKEN}`,
+      {
+        persistent_menu: [{
+          locale: "default",
+          composer_input_disabled: false,
+          call_to_actions: [
+            { type: "postback", title: "🎨 Зураг захиалах", payload: "ORDER_START" },
+            { type: "postback", title: "💰 Үнэ мэдэх", payload: "VIEW_PRICES" },
+            { type: "postback", title: "👤 Ажилтантай холбогдох", payload: "OPERATOR" },
+          ]
+        }],
+        get_started: { payload: "GET_STARTED" }
+      }
+    );
+    console.log("✅ Persistent Menu тохируулагдлаа!");
+  } catch (err) {
+    console.error("Menu тохируулах алдаа:", err.response?.data || err.message);
+  }
+}
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Bot ажиллаж байна: port ${PORT}`));
+app.listen(PORT, async () => {
+  console.log(`🚀 Bot ажиллаж байна: port ${PORT}`);
+  await setupPersistentMenu();
+});
