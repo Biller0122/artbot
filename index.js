@@ -19,12 +19,14 @@ const BANK_INFO = {
 
 const userConversations = {};
 const userStates = {};
+// Admin хяналт авсан хэрэглэгчдийн жагсаалт
+const adminTakenOver = {};
 const EXCEL_FILE = path.join(__dirname, "zahialga.xlsx");
 
 const SYSTEM_PROMPT = `Чи "Boroldoi AI Studio" зургийн захиалгын Facebook page-ийн туслах ажилтан юм. Сайн байна уу. Та Бородой АЙ студитэй холбогдлоо. Та хэдэн хүнтэй зураг хийлгэх вэ гэж асуу.
-ЗААВАЛ Монгол хэлээр хариул. Найрсаг, товч байна. Ямар ч нөхцөлд англиар хариулж болохгүй. монголоор алдаатай бичиж болохгүй. Хүн рүү нэг удаа текс бичээд хүлээх нэг хариултаа олон дахин явуулж болохгүй
-эхлээд мэдээлэл асуухад үнийн мэдээлэл болон зураг хийх хугацааг танилцуулна. 
-түүний дараа асуултуудаа асууж эхэлнэ. 
+ЗААВАЛ Монгол хэлээр хариул. Найрсаг, товч байна. Ямар ч нөхцөлд англиар хариулж болохгүй. Монголоор алдаатай бичиж болохгүй. Хүн рүү нэг удаа текст бичээд хүлээх, нэг хариултаа олон дахин явуулж болохгүй.
+Эхлээд мэдээлэл асуухад үнийн мэдээлэл болон зураг хийх хугацааг танилцуулна.
+Түүний дараа асуултуудаа асууж эхэлнэ.
 
 ҮНЭ ЖАГСААЛТ:
 🖼️ ЗУРАХ ҮНЭ (файл хэлбэрээр):
@@ -48,33 +50,33 @@ A3 хэмжээ (арьсан бүрэлттэй угаалт, 40х30см жаа
 ⚠️ Зурах болон угаах үнэ ТУС ТУСДАА тооцогдоно.
 Жишээ: 3 хүн зурах (70,000₮) + A4 угаах (50,000₮) = нийт 120,000₮
 
-Хөдөө орон нутгийн захиалганд унаанд тавьж өгнө гэж хариул
-Хүмүүсийн утасны дугаарыг асуух шаардлагагүй
+Хөдөө орон нутгийн захиалганд унаанд тавьж өгнө гэж хариул.
+Хүмүүсийн утасны дугаарыг асуух шаардлагагүй.
 
 ЗАХИАЛГА АВАХ ДЭС ДАРААЛАЛ:
-1. Хэдэн хүн зурах вэ? гэж асуу  жишээ нь 2 хүнтэй зураг хийлгэнэ гэвэл файл хэлбэрээр гарахад 50к гэх мэт
-2. Яаралтай эсвэл энгийн гэж асуу
-3. Файлаар авах уу, угааж жаазлуулах уу гэж асуу
-4. Угаалга сонговол A4 эсвэл A3 гэж асуу
-5. хариулт ирсний лахаа хүн тус бүрийн царай тод гарсан зургаа явуулаарай гэж асуух
-5. Нийт үнийг хэлэх
-6. Зургаа явуулаарай гэж хүс
-7. Зургаа явуулсаны дараа хүн тус бүрийн холбоо хамаарал асуух
-7. Зураг явуулсан тохиолдолд битгийн юм асуу
-9. Утасны дугаар асуу
-10. Утас мэдэгдвэл төлбөрийн JSON тавь
+1. Хэдэн хүн зурах вэ? гэж асуу. Жишээ нь 2 хүнтэй зураг хийлгэнэ гэвэл файл хэлбэрээр гарахад 50,000₮ гэх мэт.
+2. Яаралтай эсвэл энгийн гэж асуу.
+3. Файлаар авах уу, угааж жаазлуулах уу гэж асуу.
+4. Угаалга сонговол A4 эсвэл A3 гэж асуу.
+5. Хариулт ирсний дараа хүн тус бүрийн царай тод гарсан зургаа явуулаарай гэж асуу.
+6. Нийт үнийг хэлэх.
+7. Зургаа явуулсаны дараа хүн тус бүрийн холбоо хамаарал асуух.
+8. Зураг явуулсан тохиолдолд бусад зүйл асуухгүй байх.
+9. Утасны дугаар асуу.
+10. Утас мэдэгдвэл төлбөрийн JSON тавь.
 
+ЧУХАЛ ДҮРЭМ:
+- Өмнөх яриагаа үргэлж санаж байх. Хэрэглэгч өмнө хэлсэн зүйлийг дахин асуухгүй.
+- Хэрэглэгч өмнө хэдэн хүн гэж хэлсэн бол тэр мэдээллийг ашиглах.
+- Зөвхөн Монгол хэлээр харилц, англи үг хэрэглэхгүй, монгол хэлээр алдаагүй бичих.
+- Нэг асуулт нэг удаа асуу. Хэзээ гарах вэ гэж асуувал тухайн өдрөөс хамаарч яаралтай 1-2 хоногт, энгийн 5 хоног гэдгийг нэмэх.
+- Яаралтай үнэ = үндсэн үнэ × 1.2 (бүхэл тоо).
+- Оператор гэвэл: Оператортой холбогдож байна, хүлээнэ үү 🙋
+- Зургийн бизнестэй холбоогүй асуултад: Уучлаарай, би зөвхөн зургийн захиалгын талаар мэдээлэл өгч чадна.
+- Угааж жаазлуулж байгаа үед хэвлэж байгаа зурган дээр үг бичүүлэх үнэгүй.
 
 Утас авмагц хариуны төгсгөлд заавал энэ JSON тавь:
-###AWAITING_PAYMENT###{"type":"зурах","count":3,"speed":"яаралтай","price":84000,"name":"Болор","phone":"99001122","washSize":"A4","totalPrice":134000}###END###
-
-ДҮРЭМ:
-- Зөвхөн Монгол хэлээр харилц, англи үг хэрэглэхгүй, монгол хэлээр алдаагүй бичих утга зүйн болон үгийн алдаа гаргахгүй байх
-- Нэг асуулт нэг удаа асуу,  хэзээ гарах вэ гэж асуувал тухайн өдрөөс хамаарч яаралтай 1-2 хоногт, энгийн 5 хоног гэдгийг нэмэх"
-- Яаралтай үнэ = үндсэн үнэ × 1.2 (бүхэл тоо)
-- "Оператор" гэвэл: "Оператортой холбогдож байна, хүлээнэ үү 🙋"
-- Зургийн бизнестэй холбоогүй асуултад: "Уучлаарай, би зөвхөн зургийн захиалгын талаар мэдээлэл өгч чадна"
-- Угааж жаазлуулж байгаа үед хэвлэж байгаа зурган дээр үг бичүүлэх үнэгүй` ;
+###AWAITING_PAYMENT###{"type":"зурах","count":3,"speed":"яаралтай","price":84000,"name":"Болор","phone":"99001122","washSize":"A4","totalPrice":134000}###END###`;
 
 function generateLabel(order) {
   const now = new Date();
@@ -131,7 +133,6 @@ async function verifyPaymentScreenshot(imageUrl, expectedAmount) {
     });
     const imageBase64 = Buffer.from(imageResponse.data).toString("base64");
     const contentType = imageResponse.headers["content-type"] || "image/jpeg";
-
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
       {
@@ -175,6 +176,24 @@ app.post("/webhook", (req, res) => {
     body.entry.forEach(entry => {
       if (entry.messaging) {
         entry.messaging.forEach(event => {
+          // ======================================
+          // 🔑 ADMIN ХЯНАЛТ АВСАН МЕССЕЖ
+          // ======================================
+          // Page admin хариу бичсэн бол (is_echo = true, app_id байхгүй)
+          if (event.message?.is_echo) {
+            const recipientId = event.recipient?.id;
+            const senderId = event.sender?.id;
+
+            // Page өөрөө мессеж явуулсан бол admin хяналт авсан гэж үзнэ
+            if (recipientId) {
+              if (!adminTakenOver[recipientId]) {
+                adminTakenOver[recipientId] = true;
+                console.log(`👤 Admin хяналт авлаа → ${recipientId}`);
+              }
+            }
+            return;
+          }
+
           if (event.message && !event.message.is_echo) handleMessage(event);
           else if (event.postback) handlePostback(event);
         });
@@ -191,9 +210,34 @@ app.post("/webhook", (req, res) => {
   } else res.sendStatus(404);
 });
 
+// ======================================
+// 🔄 BOT ДАХИН ИДЭВХЖҮҮЛЭХ ENDPOINT
+// ======================================
+app.get("/bot-on", (req, res) => {
+  if (req.query.token !== VERIFY_TOKEN) return res.status(403).send("Зөвшөөрөлгүй");
+  const userId = req.query.user;
+  if (userId) {
+    delete adminTakenOver[userId];
+    console.log(`🤖 Bot дахин идэвхжлээ → ${userId}`);
+    return res.json({ success: true, message: `Bot ${userId} хэрэглэгчид дахин идэвхжлээ` });
+  }
+  // Бүх хэрэглэгчид дахин идэвхжүүлэх
+  Object.keys(adminTakenOver).forEach(k => delete adminTakenOver[k]);
+  console.log("🤖 Бүх bot дахин идэвхжлээ");
+  res.json({ success: true, message: "Бүх bot дахин идэвхжлээ" });
+});
+
 async function handleMessage(event) {
   const senderId = event.sender.id;
   const message = event.message;
+
+  // ======================================
+  // 👤 ADMIN ХЯНАЛТ АВСАН БОЛ BOT УНТАРНА
+  // ======================================
+  if (adminTakenOver[senderId]) {
+    console.log(`🔕 Bot унтарсан — Admin хяналт авсан → ${senderId}`);
+    return;
+  }
 
   if (message.attachments) {
     const img = message.attachments.find(a => a.type === "image");
@@ -220,8 +264,8 @@ async function handleMessage(event) {
 
   if (!userConversations[senderId]) userConversations[senderId] = [];
   userConversations[senderId].push({ role: "user", content: text });
-  if (userConversations[senderId].length > 30) {
-    userConversations[senderId] = userConversations[senderId].slice(-30);
+  if (userConversations[senderId].length > 40) {
+    userConversations[senderId] = userConversations[senderId].slice(-40);
   }
 
   const reply = await getClaudeReply(senderId);
@@ -255,7 +299,6 @@ async function handleOrderImage(senderId, imageUrl) {
     });
     const imageBase64 = Buffer.from(imageResponse.data).toString("base64");
     const contentType = imageResponse.headers["content-type"] || "image/jpeg";
-
     userConversations[senderId].push({
       role: "user",
       content: [
@@ -263,7 +306,6 @@ async function handleOrderImage(senderId, imageUrl) {
         { type: "text", text: "Зургаа явуулсан байна" },
       ],
     });
-
     const reply = await getClaudeReply(senderId);
     const cleanReply = reply.replace(/###AWAITING_PAYMENT###.+?###END###/s, "").trim();
     await sendText(senderId, cleanReply);
@@ -278,13 +320,12 @@ async function handlePaymentScreenshot(senderId, imageUrl) {
   const order = userStates[senderId].order;
   await sendText(senderId, "⏳ Төлбөрийг шалгаж байна...");
   const result = await verifyPaymentScreenshot(imageUrl, order.totalPrice || order.price);
-
   if (result.isPayment && result.confirmed) {
     const orderNum = await saveToExcel(order);
     delete userStates[senderId];
     userConversations[senderId] = [];
     await sendText(senderId,
-      `✅ Төлбөр баталгаажлаа!\n\n🎉 Захиалга амжилттай бүртгэгдлээ!\n\n📋 Захиалгын дугаар: #${orderNum}\n👤 Нэр: ${order.name}\n📱 Утас: ${order.phone}\n🎨 Зурах: ${order.count ? order.count+" хүн" : "-"}\n${order.washSize ? `✨ Угаах: ${order.washSize} хэмжээ\n` : ""}⏱️ Хугацаа: ${order.speed==="яаралтай" ? "Яаралтай (24-48 цаг)" : "Энгийн (5 хоног)"}\n💰 Нийт үнэ: ${(order.totalPrice||order.price)?.toLocaleString()}₮\n\nЗураг бэлэн болохоор манайхаас холбогдоно. Баярлалаа! 🎨`
+      `✅ Төлбөр баталгаажлаа!\n\n🎉 Захиалга амжилттай бүртгэгдлээ!\n\n📋 Захиалгын дугаар: #${orderNum}\n👤 Нэр: ${order.name}\n📱 Утас: ${order.phone}\n🎨 Зурах: ${order.count ? order.count+" хүн" : "-"}\n${order.washSize ? "✨ Угаах: "+order.washSize+" хэмжээ\n" : ""}⏱️ Хугацаа: ${order.speed==="яаралтай" ? "Яаралтай (24-48 цаг)" : "Энгийн (5 хоног)"}\n💰 Нийт үнэ: ${(order.totalPrice||order.price)?.toLocaleString()}₮\n\nЗураг бэлэн болохоор манайхаас холбогдоно. Баярлалаа! 🎨`
     );
   } else {
     await sendText(senderId,
