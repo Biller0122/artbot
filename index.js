@@ -75,9 +75,6 @@ A3 хэмжээ (арьсан бүрэлттэй угаалт, 40х30см жаа
 Утас авмагц хариуны төгсгөлд заавал энэ JSON тавь:
 ###AWAITING_PAYMENT###{"type":"зурах","count":3,"speed":"яаралтай","price":84000,"name":"Болор","phone":"99001122","washSize":"A4","totalPrice":134000}###END###`;
 
-// =============================================
-// 🏷️ LABEL
-// =============================================
 function generateLabel(order) {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -88,9 +85,6 @@ function generateLabel(order) {
   return labels.join(" | ");
 }
 
-// =============================================
-// 📊 EXCEL
-// =============================================
 async function saveToExcel(order) {
   const workbook = new ExcelJS.Workbook();
   let worksheet;
@@ -128,9 +122,6 @@ async function saveToExcel(order) {
   return orderNum;
 }
 
-// =============================================
-// 🖼️ ТӨЛБӨР ШАЛГАХ
-// =============================================
 async function verifyPaymentScreenshot(imageUrl, expectedAmount) {
   try {
     const imageResponse = await axios.get(imageUrl, {
@@ -170,33 +161,41 @@ async function verifyPaymentScreenshot(imageUrl, expectedAmount) {
   }
 }
 
-// =============================================
-// 🔗 WEBHOOK VERIFY
-// =============================================
 app.get("/webhook", (req, res) => {
   if (req.query["hub.mode"] === "subscribe" && req.query["hub.verify_token"] === VERIFY_TOKEN) {
     res.status(200).send(req.query["hub.challenge"]);
   } else res.sendStatus(403);
 });
 
-// =============================================
-// 📨 WEBHOOK
-// =============================================
 app.post("/webhook", (req, res) => {
   const body = req.body;
   if (body.object === "page") {
     body.entry.forEach(entry => {
       if (entry.messaging) {
         entry.messaging.forEach(event => {
-          // Admin мессеж бичсэн бол (echo) → bot унтарна
+
+          // =============================================
+          // 👤 ADMIN МЕССЕЖ ШАЛГАХ
+          // Зөвхөн admin БОДИТ ТЕКСТ бичсэн үед л bot унтарна
+          // Seen, read receipt, зураг зэрэг нь тооцохгүй
+          // =============================================
           if (event.message?.is_echo) {
             const recipientId = event.recipient?.id;
-            if (recipientId) {
+
+            // Зөвхөн текст агуулсан мессеж бол bot унтарна
+            // Attachments (зураг, sticker) болон системийн мессежийг тооцохгүй
+            const hasText = event.message?.text && event.message.text.trim().length > 0;
+            const isSystemMsg = event.message?.tags?.data?.some(
+              t => t.name === "HUMAN_AGENT"
+            );
+
+            if (recipientId && hasText) {
               adminTakenOver[recipientId] = true;
-              console.log(`👤 Admin хяналт авлаа → ${recipientId}`);
+              console.log(`👤 Admin текст бичлээ → bot унтарлаа → ${recipientId}`);
             }
             return;
           }
+
           if (event.message && !event.message.is_echo) handleMessage(event);
           else if (event.postback) handlePostback(event);
         });
@@ -213,14 +212,10 @@ app.post("/webhook", (req, res) => {
   } else res.sendStatus(404);
 });
 
-// =============================================
-// 💬 МЕССЕЖ БОЛОВСРУУЛАХ
-// =============================================
 async function handleMessage(event) {
   const senderId = event.sender.id;
   const message = event.message;
 
-  // Admin хяналт авсан бол bot унтарна
   if (adminTakenOver[senderId]) {
     console.log(`🔕 Bot унтарсан → ${senderId}`);
     return;
@@ -277,9 +272,6 @@ async function handleMessage(event) {
   userConversations[senderId].push({ role: "assistant", content: cleanReply });
 }
 
-// =============================================
-// 📋 POSTBACK — Товч дарсан үед
-// =============================================
 async function handlePostback(event) {
   const senderId = event.sender.id;
   const payload = event.postback.payload;
@@ -288,50 +280,30 @@ async function handlePostback(event) {
     case "GET_STARTED":
       delete adminTakenOver[senderId];
       userConversations[senderId] = [];
-      await sendText(senderId,
-        "Сайн байна уу! 👋 Boroldoi AI Studio-д тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?"
-      );
-      userConversations[senderId].push({
-        role: "assistant",
-        content: "Сайн байна уу! 👋 Boroldoi AI Studio-д тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?"
-      });
+      await sendText(senderId, "Сайн байна уу! 👋 Boroldoi AI Studio-д тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?");
+      userConversations[senderId].push({ role: "assistant", content: "Сайн байна уу! Та хэдэн хүнтэй зураг хийлгэх вэ?" });
       break;
 
     case "ORDER_START":
-      // Bot идэвхжүүлж захиалга эхлүүлнэ
       delete adminTakenOver[senderId];
       userConversations[senderId] = [];
-      await sendText(senderId,
-        "🎨 Зураг захиалах хэсэгт тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?\n\n💰 Үнэ:\n1 хүн – 30,000₮\n2 хүн – 50,000₮\n3 хүн – 70,000₮\n4 хүн – 100,000₮\n5 хүн – 130,000₮\n...\n\nТоог бичнэ үү:"
-      );
-      userConversations[senderId].push({
-        role: "assistant",
-        content: "Зураг захиалах. Хэдэн хүн?"
-      });
+      await sendText(senderId, "🎨 Зураг захиалах хэсэгт тавтай морилно уу!\n\nТа хэдэн хүнтэй зураг хийлгэх вэ?\n\n💰 Үнэ:\n1 хүн – 30,000₮\n2 хүн – 50,000₮\n3 хүн – 70,000₮\n4 хүн – 100,000₮\n5 хүн – 130,000₮\n...\n\nТоог бичнэ үү:");
+      userConversations[senderId].push({ role: "assistant", content: "Зураг захиалах. Хэдэн хүн?" });
       break;
 
     case "VIEW_PRICES":
-      // Үнэ жагсаалт харуулна
       delete adminTakenOver[senderId];
-      await sendText(senderId,
-        "💰 ҮНЭ ЖАГСААЛТ\n\n🖼️ ЗУРАХ ҮНЭ:\n1 хүн – 30,000₮\n2 хүн – 50,000₮\n3 хүн – 70,000₮\n4 хүн – 100,000₮\n5 хүн – 130,000₮\n6 хүн – 160,000₮\n7 хүн – 190,000₮\n8 хүн – 220,000₮\n9 хүн – 250,000₮\n10 хүн – 280,000₮\n11 хүн – 310,000₮\n\n⚡ Яаралтай (24-48 цаг): +20%\n📅 Энгийн: 5 хоног\n\n📏 УГААХ + ЖААЗЛАХ:\nA4 – 50,000₮\nA3 – 80,000₮\n\n⚠️ Зурах болон угаах үнэ тус тусдаа\n\nЗахиалга өгмөөр байвал доорх цэснээс сонгоно уу!"
-      );
+      await sendText(senderId, "💰 ҮНЭ ЖАГСААЛТ\n\n🖼️ ЗУРАХ ҮНЭ:\n1 хүн – 30,000₮\n2 хүн – 50,000₮\n3 хүн – 70,000₮\n4 хүн – 100,000₮\n5 хүн – 130,000₮\n6 хүн – 160,000₮\n7 хүн – 190,000₮\n8 хүн – 220,000₮\n9 хүн – 250,000₮\n10 хүн – 280,000₮\n11 хүн – 310,000₮\n\n⚡ Яаралтай (24-48 цаг): +20%\n📅 Энгийн: 5 хоног\n\n📏 УГААХ + ЖААЗЛАХ:\nA4 – 50,000₮\nA3 – 80,000₮\n\n⚠️ Зурах болон угаах үнэ тус тусдаа");
       break;
 
     case "OPERATOR":
-      // Bot унтарч admin хариулна
       adminTakenOver[senderId] = true;
-      await sendText(senderId,
-        "🙋 Ажилтантай холбогдож байна, хүлээнэ үү...\n\nУдахгүй манай ажилтан хариулах болно."
-      );
+      await sendText(senderId, "🙋 Ажилтантай холбогдож байна, хүлээнэ үү...\n\nУдахгүй манай ажилтан хариулах болно.");
       console.log(`👤 Хэрэглэгч оператор хүслээ → bot унтарлаа → ${senderId}`);
       break;
   }
 }
 
-// =============================================
-// 🖼️ ЗАХИАЛГЫН ЗУРАГ
-// =============================================
 async function handleOrderImage(senderId, imageUrl) {
   if (adminTakenOver[senderId]) return;
   if (!userConversations[senderId]) userConversations[senderId] = [];
@@ -359,9 +331,6 @@ async function handleOrderImage(senderId, imageUrl) {
   }
 }
 
-// =============================================
-// 📸 ТӨЛБӨРИЙН SCREENSHOT
-// =============================================
 async function handlePaymentScreenshot(senderId, imageUrl) {
   const order = userStates[senderId].order;
   await sendText(senderId, "⏳ Төлбөрийг шалгаж байна...");
@@ -380,9 +349,6 @@ async function handlePaymentScreenshot(senderId, imageUrl) {
   }
 }
 
-// =============================================
-// 📝 COMMENT
-// =============================================
 async function handleComment(commentData) {
   const commenterId = commentData.from?.id;
   const commenterName = commentData.from?.name || "Та";
@@ -394,9 +360,6 @@ async function handleComment(commentData) {
   userConversations[commenterId].push({ role: "assistant", content: greeting });
 }
 
-// =============================================
-// 🤖 CLAUDE AI
-// =============================================
 async function getClaudeReply(senderId) {
   try {
     const response = await axios.post(
@@ -422,9 +385,6 @@ async function getClaudeReply(senderId) {
   }
 }
 
-// =============================================
-// 📤 МЕССЕЖ ИЛГЭЭХ
-// =============================================
 async function sendText(recipientId, text) {
   try {
     await axios.post(
@@ -437,9 +397,6 @@ async function sendText(recipientId, text) {
   }
 }
 
-// =============================================
-// 🔄 BOT ДАХИН АСААХ
-// =============================================
 app.get("/bot-on", (req, res) => {
   if (req.query.token !== VERIFY_TOKEN) return res.status(403).send("Зөвшөөрөлгүй");
   const userId = req.query.user;
@@ -451,18 +408,12 @@ app.get("/bot-on", (req, res) => {
   res.json({ success: true, message: "Бүх bot дахин асаалаа" });
 });
 
-// =============================================
-// 📊 EXCEL ТАТАХ
-// =============================================
 app.get("/download", (req, res) => {
   if (req.query.token !== VERIFY_TOKEN) return res.status(403).send("Зөвшөөрөлгүй");
   if (!fs.existsSync(EXCEL_FILE)) return res.status(404).send("Захиалга байхгүй");
   res.download(EXCEL_FILE, "zahialga.xlsx");
 });
 
-// =============================================
-// 🚀 СЕРВЕР + PERSISTENT MENU ТОХИРУУЛАХ
-// =============================================
 async function setupPersistentMenu() {
   try {
     await axios.post(
